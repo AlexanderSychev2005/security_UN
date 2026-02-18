@@ -106,6 +106,3 @@ for i, sentence in enumerate(sentences):
 
     print(f"[Gamma Cipher XOR] Enc (HEX): {hex_output}\n")
     print(f"[Gamma Cipher XOR] Dec:       {dec_gamma}\n")
-
-    print("-" * 50)
-    print("")
