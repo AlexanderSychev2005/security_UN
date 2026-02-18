@@ -17,14 +17,12 @@ def get_char_index(char):
 
 def trithemius_cipher_lab(text, key_type, params, mode="encrypt"):
     result_text = ""
-
     current_char_idx = 0
 
     for char in text.upper():
         if char in ALPHABET:
             x = get_char_index(char)
             k = 0
-
             i = current_char_idx
 
             if key_type == "linear":
@@ -50,32 +48,27 @@ def trithemius_cipher_lab(text, key_type, params, mode="encrypt"):
             result_text += ALPHABET[y]
             current_char_idx += 1
         else:
-            result_text += char  # Does not cipher punctuation
+            result_text += char
 
     return result_text
 
 
-def gamma_cipher_lab(text, seed, mode="encrypt"):
-    # Pseudo random generator
+def gamma_cipher_xor(text, seed, mode="encrypt"):
     random.seed(seed)
-    result_text = ""
+    result_text = []
     gamma_sequence = []
 
-    for char in text.upper():
-        if char in ALPHABET:
-            x = get_char_index(char)
-            k = random.randint(0, N - 1)  # Generate the shift (gamma)
-            gamma_sequence.append(k)
+    for char in text:
+        char_code = ord(char)  # (ASCII/Unicode)
 
-            if mode == "encrypt":
-                y = (x + k) % N
-            else:
-                y = (x - k) % N
-            result_text += ALPHABET[y]
-        else:
-            result_text += char
+        k = random.randint(0, 255)  # Generate byte (0 - 255)
+        gamma_sequence.append(k)
 
-    return result_text, gamma_sequence
+        cipher_code = char_code ^ k
+
+        result_text.append(chr(cipher_code))  # Number -> Symbol
+
+    return "".join(result_text), gamma_sequence
 
 
 linear_params = (3, 5)  # A=3, B=5
@@ -90,22 +83,29 @@ for i, sentence in enumerate(sentences):
 
     enc_lin = trithemius_cipher_lab(sentence, "linear", linear_params, "encrypt")
     dec_lin = trithemius_cipher_lab(enc_lin, "linear", linear_params, "decrypt")
-    print(f"[Trithemius Linear] Enc: {enc_lin}\n")
-    print(f"[Trithemius Linear] Dec: {dec_lin}\n")
+
+    print(f"Trithemius cipher Linear [ENC]: {enc_lin}\n")
+    print(f"Trithemius cipher Linear [DEC]: {dec_lin}\n")
 
     enc_non = trithemius_cipher_lab(sentence, "nonlinear", nonlinear_params, "encrypt")
     dec_non = trithemius_cipher_lab(enc_non, "nonlinear", nonlinear_params, "decrypt")
-    print(f"[Trithemius NonLin] Enc: {enc_lin}\n")
-    print(f"[Trithemius NonLin] Dec: {dec_lin}\n")
+
+    print(f"Trithemius cipher Nonlinear [ENC]: {enc_non}\n")
+    print(f"Trithemius cipher Nonlinear [DEC]: {dec_non}\n")
 
     enc_motto = trithemius_cipher_lab(sentence, "motto", motto_key, "encrypt")
     dec_motto = trithemius_cipher_lab(enc_motto, "motto", motto_key, "decrypt")
-    print(f"[Trithemius Motto ] Enc: {enc_motto}\n")
-    print(f"[Trithemius Motto] Dec: {dec_motto}\n")
 
-    enc_gamma, gamma_seq = gamma_cipher_lab(sentence, gamma_seed, "encrypt")
-    dec_gamma, _ = gamma_cipher_lab(enc_gamma, gamma_seed, "decrypt")
-    print(f"[Gamma Cipher] Enc: {enc_gamma}\n")
-    print(f"[Gamma Cipher] Dec: {dec_gamma}\n")
+    print(f"Trithemius cipher Motto [ENC]: {enc_motto}\n")
+    print(f"Trithemius cipher Motto [DEC]: {dec_motto}\n")
 
+    enc_gamma, gamma_seq = gamma_cipher_xor(sentence, gamma_seed, "encrypt")
+    dec_gamma, _ = gamma_cipher_xor(enc_gamma, gamma_seed, "decrypt")
+
+    hex_output = " ".join(f"{ord(c):02X}" for c in enc_gamma)
+
+    print(f"[Gamma Cipher XOR] Enc (HEX): {hex_output}\n")
+    print(f"[Gamma Cipher XOR] Dec:       {dec_gamma}\n")
+
+    print("-" * 50)
     print("")
